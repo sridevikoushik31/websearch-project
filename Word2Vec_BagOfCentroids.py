@@ -24,6 +24,7 @@ from nltk.corpus import stopwords
 import numpy as np
 import os
 from KaggleWord2VecUtility import KaggleWord2VecUtility
+from sklearn.cross_validation import train_test_split
 
 
 # Define a function to create bags of centroids
@@ -62,6 +63,8 @@ if __name__ == '__main__':
     # Set "k" (num_clusters) to be 1/5th of the vocabulary size, or an
     # average of 5 words per cluster
     word_vectors = model.syn0
+    print "shape..........."
+    print word_vectors.shape
     num_clusters = word_vectors.shape[0] / 5
 
     # Initalize a k-means object and use it to extract centroids
@@ -91,8 +94,6 @@ if __name__ == '__main__':
             if( word_centroid_map.values()[i] == cluster ):
                 words.append(word_centroid_map.keys()[i])
         print words
-
-
 
 
     # Create clean_train_reviews and clean_test_reviews as we did before
@@ -130,7 +131,7 @@ if __name__ == '__main__':
         counter += 1
 
     # Repeat for test reviews
-    test_centroids = np.zeros(( test["review"].size, num_clusters), \
+    test_centroids = np.zeros((test["review"].size, num_clusters), \
         dtype="float32" )
 
     counter = 0
@@ -144,12 +145,17 @@ if __name__ == '__main__':
     #
     forest = RandomForestClassifier(n_estimators = 100)
 
+    x_train, x_test, y_train, y_test = train_test_split(train_centroids, train["sentiment"], test_size=0.33, random_state=42)
+
     # Fitting the forest may take a few minutes
     print "Fitting a random forest to labeled training data..."
-    forest = forest.fit(train_centroids,train["sentiment"])
-    result = forest.predict(test_centroids)
+    forest = forest.fit(x_train,y_train)
+    import sklearn.metrics
+    accuracy = sklearn.metrics.accuracy_score(y_test, forest.predict(x_test))
+    print accuracy
+    # result = forest.predict(test_centroids)
 
     # Write the test results
-    output = pd.DataFrame(data={"id":test["id"], "sentiment":result})
-    output.to_csv("BagOfCentroids.csv", index=False, quoting=3)
+    # output = pd.DataFrame(data={"id":test["id"], "sentiment":result})
+    # output.to_csv("BagOfCentroids.csv", index=False, quoting=3)
     print "Wrote BagOfCentroids.csv"

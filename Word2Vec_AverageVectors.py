@@ -113,6 +113,8 @@ if __name__ == '__main__':
     print "Parsing sentences from training set"
     for review in train["review"]:
         sentences += KaggleWord2VecUtility.review_to_sentences(review, tokenizer)
+    import pdb
+    pdb.set_trace()
 
     print "Parsing sentences from unlabeled set"
     for review in unlabeled_train["review"]:
@@ -163,9 +165,9 @@ if __name__ == '__main__':
     trainDataVecs = getAvgFeatureVecs( getCleanReviews(train), model, num_features )
 
     print "Creating average feature vecs for test reviews"
-
     testDataVecs = getAvgFeatureVecs( getCleanReviews(test), model, num_features )
 
+    print testDataVecs
 
     # ****** Fit a random forest to the training set, then make predictions
     #
@@ -173,6 +175,7 @@ if __name__ == '__main__':
     forest = RandomForestClassifier( n_estimators = 100 )
 
     print "Fitting a random forest to labeled training data..."
+    # print train["sentiment"]
     forest = forest.fit( trainDataVecs, train["sentiment"] )
 
     # Test & extract results
