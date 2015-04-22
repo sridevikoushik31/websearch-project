@@ -1,7 +1,7 @@
 from stat_parser import Parser
 parser = Parser()
 
-sentence = "The movie was great."
+sentence = "The movie was great"
 
 tree = parser.parse(sentence)
 
@@ -55,7 +55,7 @@ def traverse_reverse(tree):
 		traversal_stack.append(tree.left)
 		traversal_stack.append(tree.right)
 
-		# print tree.left, tree.right
+		print tree.left, tree.right
 	else:
 		traversal_stack.append(tree.left)
 		traversal_stack.append(tree.right)
