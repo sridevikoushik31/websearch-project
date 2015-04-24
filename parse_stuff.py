@@ -1,42 +1,66 @@
 from stat_parser import Parser
+import random
+
 parser = Parser()
 
-sentence = "The movie was great."
+sentence = "The movie was great"
+# sentence = "How are you"
+
 
 tree = parser.parse(sentence)
-
+# tree.draw()
 all_nodes = []
 
 class Node:
-	def __init__(self, left=None, right = None, leaf = False):
+	def __init__(self, left=None, right = None, label=None):
 		self.left = left
 		self.right = right
-		self.leaf = leaf
+		self.label = label
 	# pass
-# tree_list = []
+tree_list = []
 
-def compute_tree_list(t):
-	if len(t.leaves()) == 2:
-		# tree_list.append(t.)
-		l = t.leaves()
-		# print l
-		# print l[0]
-		# print l[1]
-		return Node(l[0], l[1], True)
-	elif len(t.leaves()) == 1:
+def compute_tree_list(t, root_ptr1):
+	# if len(t.leaves()) == 2:
+	# 	# tree_list.append(t.)
+	# 	l = t.leaves()
+	# 	# print l
+	print root_ptr1
+	# 	# print l[0]
+	# 	# print l[1]
+	# 	return Node(l[0], l[1], True)
+	if len(t.leaves()) == 1:
 		# tree_list.append(t.leaves())
 		l = t.leaves()
 		# print l[0]
-		return Node(l[0], None, True)
+		return Node(l[0])
 	else:
 		subts = list(t)
+		left_id = root_ptr1+1
+		right_id = root_ptr1*2
+		print "left id = %f" % left_id
+		print "right id = %f" % right_id
 		# print len(subts)
-		left_tree = compute_tree_list(subts[0])
-		right_tree = compute_tree_list(subts[1])
+		left_tree = compute_tree_list(subts[0], left_id)
+		right_tree = compute_tree_list(subts[1], right_id)
+		if isinstance(left_tree, Node):
+			left_id = left_tree.left
+			
+		if isinstance(right_tree, Node):
+			right_id = right_tree.left
+		# print "root ptr.... = %f" % root_ptr
+		tree_list.append({"ip1": left_id, "ip2": right_id, "op": root_ptr1})
 
-		return Node(left_tree, right_tree)
+		# return Node(left_tree, right_tree)
 
-n = compute_tree_list(tree)
+x=random.random()*100
+print "random... "
+print x
+compute_tree_list(tree, 10000)
+import pdb
+# pdb.set_trace()
+print tree_list
+
+
 
 def traverse(tree):
 	# print "called.."
@@ -69,5 +93,5 @@ def traverse_list(traverse_li):
 			print popped.left
 			print popped.right
 
-traverse_reverse(n)
-traverse_list(traversal_stack)
+# traverse_reverse(n)
+# traverse_list(traversal_stack)
