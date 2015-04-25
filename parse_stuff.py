@@ -1,73 +1,68 @@
 from stat_parser import Parser
-parser = Parser()
-
-sentence = "The movie was great"
-
-tree = parser.parse(sentence)
-
-all_nodes = []
-
+import random
+import numpy as np
 class Node:
-	def __init__(self, left=None, right = None, leaf = False):
-		self.left = left
-		self.right = right
-		self.leaf = leaf
-	# pass
-# tree_list = []
+    def __init__(self, left=None, right = None, label=None):
+        self.left = left
+        self.right = right
+        self.label = label
+    # pass
 
-def compute_tree_list(t):
-	if len(t.leaves()) == 2:
-		# tree_list.append(t.)
-		l = t.leaves()
-		# print l
-		# print l[0]
-		# print l[1]
-		return Node(l[0], l[1], True)
-	elif len(t.leaves()) == 1:
-		# tree_list.append(t.leaves())
-		l = t.leaves()
-		# print l[0]
-		return Node(l[0], None, True)
-	else:
-		subts = list(t)
-		# print len(subts)
-		left_tree = compute_tree_list(subts[0])
-		right_tree = compute_tree_list(subts[1])
+def ret_tree(sentence,rep,model):
+    parser = Parser()
 
-		return Node(left_tree, right_tree)
+    tree_list = []
+# sentence = "How are you"
 
-n = compute_tree_list(tree)
 
-def traverse(tree):
-	# print "called.."
-	if (tree.leaf == True):
-		print tree.left, tree.right
-	else:
-		traverse(tree.left)
-		traverse(tree.right)
-# traverse(n)
+    tree = parser.parse(sentence)
+    #tree.draw()
+    all_nodes = []
 
-traversal_stack = []
 
-def traverse_reverse(tree):
-	# print "called.."
-	if (tree.leaf == True):
-		traversal_stack.append(tree.left)
-		traversal_stack.append(tree.right)
+    def compute_tree_list(t, root_ptr1,rep,model):
+        # if len(t.leaves()) == 2:
+        # 	# tree_list.append(t.)
+        # 	l = t.leaves()
+        # 	# print l
+        #print root_ptr1
+        # 	# print l[0]
+        # 	# print l[1]
+        # 	return Node(l[0], l[1], True)
+        if len(t.leaves()) == 1:
+            # tree_list.append(t.leaves())
+            l = t.leaves()
+            # print l[0]
+            return Node(l[0])
+        else:
+            subts = list(t)
+            left_id = root_ptr1+1
+            right_id = root_ptr1*2
 
-		print tree.left, tree.right
-	else:
-		traversal_stack.append(tree.left)
-		traversal_stack.append(tree.right)
+#print "left id = %f" % left_id
+ #           print "right id = %f" % right_id
+            # print len(subts)
+            left_tree = compute_tree_list(subts[0], left_id,rep,model)
+            right_tree = compute_tree_list(subts[1], right_id,rep,model)
+            if isinstance(left_tree, Node):
+                left_id = left_tree.left
+                rep[left_id]=np.transpose(model[left_id]).reshape([300,1])
+   #             print rep[left_id].shape
 
-		traverse(tree.left)
-		traverse(tree.right)
-def traverse_list(traverse_li):
-	while len(traverse_li) > 0:
-		popped = traverse_li.pop()
-		if popped.leaf == True:
-			print popped.left
-			print popped.right
+            if isinstance(right_tree, Node):
+                right_id = right_tree.left
+                w=model.most_similar(positive=right_id,topn=1);
+                rep[right_id]=np.transpose(model[right_id]).reshape([300,1])
+  #              print rep[right_id].shape
+            # print "root ptr.... = %f" % root_ptr
+            tree_list.append({"ip1": left_id, "ip2": right_id, "op": root_ptr1})
 
-traverse_reverse(n)
-traverse_list(traversal_stack)
+            # return Node(left_tree, right_tree)
+
+    compute_tree_list(tree, 10000,rep,model)
+    print "Tree List",tree_list
+    return tree_list,rep
+
+
+
+
