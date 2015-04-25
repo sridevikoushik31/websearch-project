@@ -43,8 +43,10 @@ class softmax:
         label=np.zeros([2,1]);
         label[ilabel]=1;
         temp1=np.dot(np.transpose(self.softmax_weights),(label-predict))
-        se=temp1*self.softmax_diff(x)
-        self.softmax_weights=self.softmax_weights+0.05*np.transpose(se);
+        temp2=self.softmax_diff(x)
+        se=temp1*temp2;
+        self.softmax_weights=self.softmax_weights-0.05*np.dot(predict,np.transpose(se));
+        return se
 
 def softmax_train(xtrain,xlabel):
     model=softmax(3298)
